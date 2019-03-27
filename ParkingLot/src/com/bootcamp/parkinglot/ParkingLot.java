@@ -4,22 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 class ParkingLot {
+    private final int id;
     private List<Car> parkingLot;
     private int capacity;
-    private Attendent attendent;
+    private Attendant attendant;
     private boolean isFull;
 
-    ParkingLot(int capacity, Attendent attendent) {
+    ParkingLot(int capacity, Attendant attendant, int id) {
         this.capacity = capacity;
-        this.attendent = attendent;
+        this.attendant = attendant;
         this.isFull = false;
+        this.id = id;
         this.parkingLot = new ArrayList<>();
-
     }
 
     boolean park(Car car) {
         if (!canPark()) return false;
         parkingLot.add(car);
+        attendant.notifyCarParked(this.id);
         isParkingLotFull();
         return true;
     }
@@ -27,7 +29,7 @@ class ParkingLot {
     private void isParkingLotFull() {
         if (this.parkingLot.size() >= this.capacity) {
             this.isFull = true;
-            attendent.setParkingLotFull(this);
+            attendant.notifyParkingLotFull(this.id);
         }
     }
 
@@ -35,19 +37,38 @@ class ParkingLot {
         return this.parkingLot.size() < this.capacity;
     }
 
-    public boolean unpark(Car car) {
-        if (this.parkingLot.contains(car)) {
-            notifyParkingLotIsFree();
-            this.parkingLot.remove(car);
-            this.isFull = false;
-            return true;
+    boolean unPark(int id) {
+        for (Car car : this.parkingLot) {
+            if (car.getId() == id) {
+                notifyParkingLotIsFree();
+                this.parkingLot.remove(car);
+                this.isFull = false;
+                attendant.notifyCarUnparked(this.id);
+                return true;
+            }
         }
         return false;
     }
 
     private void notifyParkingLotIsFree() {
         if (this.isFull) {
-            this.attendent.setParkingLotFree(this);
+            this.attendant.notifyParkingLotFree(this.id);
         }
+    }
+
+    int getId() {
+        return this.id;
+    }
+
+    int getCarsCount() {
+        return parkingLot.size();
+    }
+
+    StringBuilder getDetails() {
+        StringBuilder details = new StringBuilder();
+        details.append(this.id);
+        details.append(this.parkingLot.size());
+        details.append(this.capacity);
+        return details;
     }
 }

@@ -2,25 +2,26 @@ package com.bootcamp.parkinglot;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ParkingLotTest {
 
     @Test
     void shouldParkACarToTheParkingLot() {
-        Attendent attendent = new Attendent();
-        ParkingLot parkingLot = new ParkingLot(20, attendent);
-        Car car = new Car();
+        Display display = new Display();
+        Attendant attendant = new Attendant(display);
+        ParkingLot parkingLot = new ParkingLot(20, attendant, 1);
+        Car car = new Car(1);
         assertTrue(parkingLot.park(car));
     }
 
 
     @Test
     void shouldNotParkACarToTheParkingLotIfItsCapacityIfFull() {
-        Attendent attendent = new Attendent();
-        ParkingLot parkingLot = new ParkingLot(2, attendent);
-        Car car = new Car();
+        Display display = new Display();
+        Attendant attendant = new Attendant(display);
+        ParkingLot parkingLot = new ParkingLot(2, attendant, 1);
+        Car car = new Car(1);
         parkingLot.park(car);
         parkingLot.park(car);
         parkingLot.park(car);
@@ -28,63 +29,95 @@ class ParkingLotTest {
     }
 
     @Test
-    void shouldNotifyAttendentIfParkingLotIsFull() {
-        MockAttendent attendent = new MockAttendent();
-        ParkingLot parkingLot = new ParkingLot(3, attendent);
-        Car car = new Car();
+    void shouldNotifyAttendantIfParkingLotIsFull() {
+        Display display = new Display();
+        MockAttendant attendant = new MockAttendant(display);
+        ParkingLot parkingLot = new ParkingLot(3, attendant, 1);
+        Car car = new Car(1);
         parkingLot.park(car);
         parkingLot.park(car);
         parkingLot.park(car);
 
-        assertTrue(attendent.isNotify);
+        assertTrue(attendant.isNotify);
     }
 
     @Test
-    void shouldNotifyAttendentIfParkingLotIsFree() {
-        MockAttendent attendent = new MockAttendent();
-        ParkingLot parkingLot = new ParkingLot(3, attendent);
-        Car car = new Car();
-        parkingLot.park(car);
-        parkingLot.park(car);
-        parkingLot.park(car);
-
-        assertTrue(attendent.isNotify);
-    }
-
-    @Test
-    void ShouldBeAbleToUnparkACarIfItPresent() {
-        Attendent attendent = new Attendent();
-        ParkingLot parkingLot = new ParkingLot(3, attendent);
-        Car car1 = new Car();
-        Car car2 = new Car();
+    void shouldNotifyAttendantIfParkingLotIsFree() {
+        Display display = new Display();
+        MockAttendant attendant = new MockAttendant(display);
+        ParkingLot parkingLot = new ParkingLot(2, attendant, 1);
+        Car car1 = new Car(1);
+        Car car2 = new Car(2);
         parkingLot.park(car1);
         parkingLot.park(car2);
-        assertTrue(parkingLot.unpark(car2));
+        parkingLot.unPark(1);
+
+        assertTrue(attendant.isNotify);
     }
+
     @Test
-    void ShouldNotBeAbleToUnparkACarIfItNotPresent() {
-        Attendent attendent = new Attendent();
-        ParkingLot parkingLot = new ParkingLot(3, attendent);
-        Car car1 = new Car();
-        Car car2 = new Car();
-        Car car3 = new Car();
+    void ShouldBeAbleToUnParkACarIfItPresent() {
+        Display display = new Display();
+        Attendant attendant = new Attendant(display);
+        ParkingLot parkingLot = new ParkingLot(3, attendant, 1);
+        Car car1 = new Car(1);
+        Car car2 = new Car(2);
         parkingLot.park(car1);
         parkingLot.park(car2);
-        assertFalse(parkingLot.unpark(car3));
+        assertTrue(parkingLot.unPark(2));
     }
+
+    @Test
+    void ShouldNotBeAbleToUnParkACarIfItNotPresent() {
+        Display display = new Display();
+        Attendant attendant = new Attendant(display);
+        ParkingLot parkingLot = new ParkingLot(3, attendant, 1);
+        Car car1 = new Car(1);
+        Car car2 = new Car(2);
+        parkingLot.park(car1);
+        parkingLot.park(car2);
+        assertFalse(parkingLot.unPark(3));
+    }
+
+    @Test
+    void shouldReturnIdOfParkingLot() {
+        Display display = new Display();
+        Attendant attendant = new Attendant(display);
+        ParkingLot parkingLot = new ParkingLot(10, attendant, 1);
+        int id = parkingLot.getId();
+        int expectedId = 1;
+        assertEquals(expectedId, id);
+    }
+
+    @Test
+    void shouldReturnNumberOfParkedCarsInParkingLot() {
+        Display display = new Display();
+        Attendant attendant = new Attendant(display);
+        ParkingLot parkingLot = new ParkingLot(10, attendant, 1);
+        parkingLot.park(new Car(1));
+        int id = parkingLot.getCarsCount();
+        int expectedId = 1;
+        System.out.println(display.toString());
+        assertEquals(expectedId, id);
+    }
+
 
 }
 
-class MockAttendent extends Attendent{
+class MockAttendant extends Attendant {
     boolean isNotify = false;
 
+    MockAttendant(Display display) {
+        super(display);
+    }
+
     @Override
-    void setParkingLotFull(ParkingLot parkingLot) {
+    void notifyParkingLotFull(int parkingLot) {
         isNotify = true;
     }
 
     @Override
-    public void setParkingLotFree(ParkingLot parkingLot) {
+    public void notifyParkingLotFree(int parkingLot) {
         isNotify = true;
     }
 }
